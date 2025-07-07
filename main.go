@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -16,6 +17,7 @@ func main() {
 	// It reads all of stdin until EOF to get the password.
 	passwordBytes, err := io.ReadAll(os.Stdin)
 	if err != nil {
+		fmt.Fprintln(os.Stderr, "shallpass: failed to read password from stdin:", err)
 		os.Exit(1)
 	}
 	password := string(passwordBytes)
@@ -27,6 +29,7 @@ func main() {
 	// We need to control ssh's stdin to send the password, so we get a pipe.
 	stdinPipe, err := cmd.StdinPipe()
 	if err != nil {
+		fmt.Fprintln(os.Stderr, "shallpass: failed to create stdin pipe:", err)
 		os.Exit(1)
 	}
 
@@ -34,6 +37,7 @@ func main() {
 	// while it also goes to the user's terminal.
 	stdoutReader, stdoutWriter, err := os.Pipe()
 	if err != nil {
+		fmt.Fprintln(os.Stderr, "shallpass: failed to create stdout pipe:", err)
 		os.Exit(1)
 	}
 
@@ -48,6 +52,7 @@ func main() {
 
 	// Start the ssh command in the background.
 	if err := cmd.Start(); err != nil {
+		fmt.Fprintln(os.Stderr, "shallpass: failed to start ssh command:", err)
 		os.Exit(1)
 	}
 
